@@ -1,0 +1,14 @@
+<html>
+<head>
+    <title>Meine Datei-Upload-Seite</title>
+</head>
+<body>
+    <h1>Willkommen auf meiner Datei-Upload-Seite</h1>
+    <p>Hier kannst du eine Datei von deinem Computer auswählen und auf den Server hochladen.</p>
+    <form action="upload.php" method="post" enctype="multipart/form-data">
+        <label for="file">Wähle eine Datei aus:</label>
+        <input type="file" id="file" name="file" accept="*/*">
+        <input type="submit" value="Hochladen">
+    </form>
+</body>
+</html>
