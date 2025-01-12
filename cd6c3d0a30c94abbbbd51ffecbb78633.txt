@@ -1,0 +1,468 @@
+____
+ESPHome Configuration YAML
+
+*Einleitung* +
+Diese Dokumentation beschreibt, wie ein ESPHome-System konfiguriert
+wird, um eine Pflanze automatisch zu gießen. Das Gießen erfolgt
+basierend auf einer bestimmten Uhrzeit oder wenn die Temperatur eine
+bestimmte Grenze über- oder unterschreitet. Der Code ermöglicht eine
+flexible Steuerung über Home Assistant.
+
+*1. Hardwarevoraussetzungen- ESP8266* +
+• Mikrocontroller bzw. ESP8266 +
+• Raspberry Pi +
+• ULN2003 Schrittmotortreiber +
+• 28BYJ-48 Schrittmotor +
+• I2C-fähiger Temperatursensor (BMP280) +
+• Ggf. Wasserpumpe, Ventil oder ein Wasserbehälter für das Gießen•
+Stromversorgung und Verkabelung
+____
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+a|
+1 2 3 4 5 6 7 8 9 10
+
+11 12 13 14
+
+a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+1
+
+____
+*ESP8266 Neustarten*
+
+*Funktion:* Erstellt einen Schalter, um den ESP32 (oder ESP8266) manuell
+neu zu starten.
+
+*Anwendung:* Nützlich für Fehlerbehebungen oder zum Zurücksetzen des
+Systems.
+____
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|1 2 a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+____
+*Stepper Zielposition*
+
+*Funktion:* Verknüpft Home Assistant mit einer Eingabekomponentezur
+Festlegung der Zielposition.
+
+*Aktion bei Änderung:* +
+- Der neue Zielwert wird geloggt.
+
+- Der Stepper bewegt sich zur neuen Position.
+____
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+a|
+1 2 3 4 5 6 7
+
+8
+
+a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+____
+*Max- und Min-Temperatur*
+
+*Funktion:* Verbindet Home Assistant mit der Eingabekomponente
+temperature_threshold_above, um die maximale Temperatur festzulegen.
+
+*Aktion bei Änderung:* +
+- Der neue Schwellenwert wird geloggt.
+
+- Die Variable temperature_threshold_above wird aktualisiert.
+____
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+a|
+1 2 3 4 5 6 7 8
+
+9
+
+a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+2
+
+____
+*Funktion:* Verbindet Home Assistant mit der Eingabekomponente
+temperature_threshold_below, um die minimale Temperatur festzulegen.
+
+*Aktion bei Änderung:* +
+- Der neue Schwellenwert wird geloggt.
+
+- Die Variable temperature_threshold_below wird aktualisiert.
+____
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+a|
+____
+1 +
+2 +
+3 +
+4 +
+5 +
+6 +
+7 +
+8
+____
+
+9
+
+a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+____
+*Zeitgesteuerte Aktionen* +
+*Ziel:* Dieser Codeabschnitt definiert eine zeitgesteuerte Überprüfung,
+die jede Sekunde ausgeführt wird.
+
+*Funktion:* Ziel ist es, zu einer bestimmten, vom Benutzer definierten
+Zeit (Stunde und Minute) eine Aktion auszulösen.
+
+*Ablauf:* Hierbei wird der Schrittmotor (Stepper) zu einer festgelegten
+Zielposition be-wegt, und nach der Ausführung werden die Zielparameter
+zurückgesetzt, um erneute Ausführungen zu vermeiden.
+
+*Zusatz:* Zusätzlich wird ein täglicher Reset des Triggers nach
+Mitternacht durchgeführt.
+____
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+a|
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+
+17 18
+
+a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+3
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|19 20 21 22 23 24 25 26 a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+____
+*Stepper Zielzeit*
+
+*Funktion:* Definiert eine datetime-Komponente in ESPHome.
+
+*Ziel:* Ermöglicht die Festlegung einer Zielzeit für den Schrittmotor
+(Stepper).
+
+*Ablauf:* Die Zielzeit wird in Home Assistant definiert und bei jeder
+Änderung verar-beitet.
+
+*Details:* Stunden und Minuten werden in globale Variablen übernommen,
+um die Zeit-steuerung zu ermöglichen.
+____
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+a|
+1 2 3 4 5 6 7 8 9 10 11 12 13
+
+14 15 16 17
+
+a|
+[width="100%",cols="100%",options="header",]
+!===
+!
+!===
+
+|===
+
+____
+*Automatisiertes Pflanzengießen*
+
+Diese Abschnitt beschreibt die erweiterten Funktionen und
+Steuerungsmöglichkeiten des automatisierten Pflanzengießens. Das System
+nutzt ESPHome und Home Assistant, um eine flexible und zuverlässige
+Lösung bereitzustellen. Zusätzlich zur Temperatur- und zeitbasierten
+Automatisierung bietet das System:
+
+*Manuelle Steuerung:* Möglichkeit, den Schrittmotor direkt über Home
+Assistant zu steuern.
+
+*Flexible Temperaturgrenzen:* Benutzerdefinierte obere und untere
+Temperaturgren-zen für die Automatisierung.
+____
+
+4
+
+*Logging:* Speicherung der aktuellen Position des Schrittmotors und der
+Raumtemper-atur.
+
+*Automatisches Zurücksetzen:* Rückkehr des Systems in den
+Ausgangszustand nach dem Gießen.
+
+*Dashboard-Integration:* Übersichtliche Darstellung und Steuerung über
+das Home Assistant-Dashboard.
+
+*1. Manuelle Steuerung der Position*
+
+Über Home Assistant kann die Zielposition des Schrittmotors manuell und
+präzise fest-gelegt werden. Dies erfolgt durch einen Slider in der Home
+Assistant-Oberfläche, der direkt an den ESPHome-Code übergeben wird.
+Eine einfachere und schnellere Variante wird in _„4. Manuelles
+Positionieren mit dem Stepper-Vorwärts-Button“_ beschrieben.
+
+____
+*Manuelle Positionierung des Steppers.*
+____
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image1.png[image,width=270,height=208]
+
+____
+Figure 1: Zweites Bild.
+
+5
+____
+
+**2. Anpassung der Minimal- und Maximaltemperaturen**Über Home Assistant
+können die Minimal- und Maximaltemperaturen definiert werden, bei denen
+der Gießvorgang ausgelöst werden soll. Diese Grenzwerte werden dynamisch
+an den ESP8266 übertragen.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image2.png[image,width=270,height=256]
+
+____
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image3.png[image,width=270,height=232]
+____
+
+Figure 3: Dashboard-Karten für das Einstellen von Min- und
+Max-Temperaturen.
+
+*3. Neustarten des ESP8266*
+
+Sollte das System nicht wie erwartet funktionieren, kann der ESP8266
+direkt über einen
+
+Neustart-Button in der Home Assistant-Oberfläche zurückgesetzt werden.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image4.png[image,width=270,height=233]
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+a|
+____
+Figure 4: +
+neustartet.
+____
+
+a|
+____
+Button der den ESP8266
+____
+
+|===
+
+6
+
+*4. Manuelles Positionieren mit dem Stepper-Vorwärts-Button*
+
+Der Button ’Stepper Vorwärts’ erlaubt es, den Schrittmotor um 512
+Schritte zu bewegen. Diese Funktion ist nützlich, um den Motor manuell
+und schnell zu positionieren.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image5.png[image,width=270,height=260]
+
+[width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
+|===
+|Figure |5: |Der |Button | a|
+____
+’Stepper
+____
+
+|Vorwärts’ | |ermöglicht | |eine a|
+____
+manuelle
+____
+
+|Steuerung. | | | | |
+|===
+
+7
+
+*5. Temperaturverlauf und Stepper-Position*
+
+Der Temperaturverlauf im Raum wird durch den BMP280-Sensor aufgezeichnet
+und in Home Assistant angezeigt.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image6.png[image,width=270,height=251]
+
+____
+Figure 6: Der Temperaturverlauf wird +
+grafisch dargestellt.
+____
+
+8
+
+*6. Aktuelle-Stepper-Position* +
+Die aktuelle Position des Schrittmotors wird ebenfalls in Home Assistant
+protokolliert, um die Bewegung des Motors zu verfolgen.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image7.png[image,width=270,height=209]
+
+____
+Figure 7: Hier wird die aktuelle Position +
+des Schrittmotors aufgezeigt.
+____
+
+9
+
+*7. Aktuelle-Stepper-Position* +
+Nach Abschluss des Gießvorgangs kehrt der Schrittmotor automatisch zur
+definierten Ausgangsposition zurück. Dies stellt sicher, dass das System
+jederzeit bereit für den nächsten Gießvorgang ist.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image8.png[image,width=601,height=522]
+
+Figure 8: Einstellungen der Automatisierung
+
+10
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image9.png[image,width=601,height=497]
+
+Figure 9: Einstellungen der Automatisierung
+
+11
+
+*8. Benachrichtigung nach Abschluss des Gießvorgangs*
+
+Sobald der Gießvorgang abgeschlossen ist, wird automatisch eine
+Benachrichtigung an den Benutzer gesendet. Diese Funktion stellt sicher,
+dass der Benutzer über den aktuellen Zustand des Systems informiert
+wird.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image10.png[image,width=601,height=280]
+
+____
+Figure 10: Eine Benachrichtigung bestätigt, welche den Abschluss des
+Gießvorgangs.
+____
+
+*9. Festlegen der Gießzeit und Stepper-Position zur Gießzeit*
+
+Dieses erste Element ermöglicht es, die gewünschte Zeit für das Gießen
+auszuwählen. Dies ist hilfreich, um sicherzustellen, dass die Pflanze
+regelmäßig und zur optimalen Tageszeit bewässert wird.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image11.png[image,width=270,height=189]
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image12.png[image,width=270,height=105]
+
+Figure 11: Einstellen der Gießzeit.
+
+12
+
+*10. Einstellen der geplanten Zielposition zur Gießzeit* Das zweite
+Element zeigt, wie die Zielzeit für den Schrittmotor festgelegt werden
+kann. Diese Zeit definiert den Moment, an dem der Schrittmotor aktiviert
+wird, um die Pflanze zu gießen. Hier kann der Benutzer die Stunden und
+Minuten präzise einstellen.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image13.png[image,width=270,height=173]
+
+____
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image14.png[image,width=270,height=248]
+____
+
+Figure 12: Einstellen der Stepper-Position für die Gießzeit.
+
+*11.Anzeige der aktuellen Raumtemperatur*
+
+Die aktuelle Temperatur wird in Celsius dargestellt, hier 22,0°C. Dies
+ist wichtig, um
+
+sicherzustellen, dass die Umweltbedingungen für die Pflanze optimal
+sind.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image15.png[image,width=270,height=205]
+
+Figure 13: Anzeige zur Überwachung der aktuellen Raumtemperatur.
+
+*12.Details zur Sonnenaufgangszeit.*
+
+Mit diesem Element kann der Sonnen Aufgang überwacht werden. Dies kann
+nützlich
+
+sein falls es nötig ist schnell zu wissen wann der nächste Sonnen
+Aufgang ist.
+
+13
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image16.png[image,width=270,height=125]
+
+Figure 14: Sonnen Aufgang Anzeige.
+
+*13.Loggen der Stepper-Position und Raumtemperatur.*
+
+Die aufgezeichneten Temperaturwerte bieten eine detaillierte Übersicht
+über die Kli-maveränderungen im Raum. Dadurch kann sichergestellt
+werden, dass die Pflanze unter idealen Bedingungen wächst. Schwankungen
+können frühzeitig erkannt und behoben werden, wie z. B. durch eine
+Anpassung der Bewässerungszeiten oder durch den Einsatz von Heizung oder
+Kühlung. Die protokollierten Positionen des Steppers zeigen, wie oft und
+wie weit der Schrittmotor bewegt wurde. Dies gibt Einblicke in die
+Gießhäufigkeit. Das Loggen hilft, mögliche Probleme im System zu
+identifizieren. Beispielsweise können ungewöhnliche Bewegungen des
+Steppers oder unerwartete Temperaturschwankungen auf technische
+Störungen oder externe Einflüsse hinweisen.
+
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image17.png[image,width=270,height=264]
+
+____
+image:vertopal_cd6c3d0a30c94abbbbd51ffecbb78633/media/image18.png[image,width=270,height=242]
+
+Figure 15: Log-Anzeige für die Stepper-Position und
+Raumtemperaturverlauf.
+____
+
+14
